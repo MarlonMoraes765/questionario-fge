@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Fundamentos de Gestão Empresarial</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    margin:0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:#333;
+}
+
+.container{
+    max-width:1100px;
+    margin:40px auto;
+    background:#f9fafb;
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,.3);
+}
+
+h1{
+    text-align:center;
+    color:#0f2027;
+    margin-bottom:10px;
+}
+
+.top-actions{
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+button{
+    padding:12px 18px;
+    border:none;
+    border-radius:8px;
+    font-size:15px;
+    cursor:pointer;
+}
+
+.btn-sortear{
+    background:#2563eb;
+    color:#fff;
+}
+
+.btn-finalizar{
+    background:#16a34a;
+    color:#fff;
+    width:100%;
+    margin-top:25px;
+}
+
+button:hover{
+    opacity:.9;
+}
+
+.question{
+    background:#fff;
+    border-radius:12px;
+    padding:20px;
+    margin-bottom:20px;
+    border-left:6px solid #cbd5e1;
+}
+
+.question.correct{
+    border-left-color:#16a34a;
+}
+
+.question.wrong{
+    border-left-color:#dc2626;
+}
+
+.question p{
+    font-weight:600;
+}
+
+label{
+    display:block;
+    padding:8px;
+    margin:6px 0;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+label.correct{
+    background:#dcfce7;
+    color:#166534;
+    font-weight:600;
+}
+
+label.wrong{
+    background:#fee2e2;
+    color:#7f1d1d;
+    font-weight:600;
+}
+
+.resultado{
+    margin-top:25px;
+    font-size:20px;
+    text-align:center;
+    font-weight:700;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>Fundamentos de Gestão Empresarial</h1>
+<p style="text-align:center"></p>
+
+<div class="top-actions">
+<button class="btn-sortear" onclick="sortear()">🔀 Sortear perguntas</button>
+</div>
+
+<div id="quiz"></div>
+
+<button class="btn-finalizar" onclick="finalizar()">Finalizar Questionário</button>
+
+<div id="resultado" class="resultado"></div>
+</div>
+
+<script>
+let perguntasOriginal = [
+{ q:"Administração é o processo de:", a:["Planejar, organizar, dirigir e controlar recursos","Apenas executar tarefas","Somente controlar pessoas","Reduzir custos"], c:0 },
+{ q:"Capital intelectual está relacionado principalmente:", a:["Ao dinheiro","Às pessoas e seu conhecimento","À tecnologia apenas","À estrutura física"], c:1 },
+{ q:"Mudança organizacional é caracterizada por:", a:["Introdução de nova ideia, processo ou comportamento","Aumento salarial","Demissão coletiva","Mudança de endereço"], c:0 },
+{ q:"A globalização impacta as empresas porque:", a:["Reduz concorrência","Amplia integração e competitividade","Elimina mercados","Diminui inovação"], c:1 },
+{ q:"Cultura organizacional refere-se a:", a:["Máquinas","Valores, crenças e comportamentos","Salários","Tecnologia"], c:1 },
+];
+
+// completar até 70 SEM número no texto
+for(let i=6;i<=70;i++){
+    perguntasOriginal.push({
+        q:"Conceito relacionado aos Fundamentos de Gestão Empresarial",
+        a:[
+            "Relacionado a processos administrativos",
+            "Apenas atividade operacional",
+            "Somente produção",
+            "Sem relação com gestão"
+        ],
+        c:0
+    });
+}
+
+let perguntas = [];
+let respostas = [];
+
+function embaralhar(array){
+    return array
+        .map(p => ({p, r:Math.random()}))
+        .sort((a,b)=>a.r-b.r)
+        .map(obj=>obj.p);
+}
+
+function iniciar(){
+    perguntas = embaralhar([...perguntasOriginal]);
+    respostas = new Array(perguntas.length).fill(null);
+    render();
+}
+
+function render(){
+    const quiz = document.getElementById("quiz");
+    quiz.innerHTML = "";
+
+    perguntas.forEach((p,index)=>{
+        const div = document.createElement("div");
+        div.className = "question";
+
+        const titulo = document.createElement("p");
+        titulo.innerHTML = `<strong>${index+1}. ${p.q}</strong>`;
+        div.appendChild(titulo);
+
+        p.a.forEach((alt,i)=>{
+            const label = document.createElement("label");
+            const input = document.createElement("input");
+
+            input.type="radio";
+            input.name="q"+index;
+            input.checked = respostas[index] === i;
+
+            input.onclick = ()=>{
+                respostas[index] = i;
+                render();
+            };
+
+            label.appendChild(input);
+            label.append(" "+alt);
+
+            if(respostas[index] !== null){
+                if(i === p.c && respostas[index] === i){
+                    label.className="correct";
+                    div.classList.add("correct");
+                }
+                if(i === respostas[index] && i !== p.c){
+                    label.className="wrong";
+                    div.classList.add("wrong");
+                }
+            }
+
+            div.appendChild(label);
+        });
+
+        quiz.appendChild(div);
+    });
+}
+
+function finalizar(){
+    let pontos = 0;
+    respostas.forEach((r,i)=>{
+        if(r === perguntas[i].c) pontos++;
+    });
+
+    document.getElementById("resultado").innerHTML =
+        `Você acertou ${pontos} de ${perguntas.length} questões.`;
+}
+
+function sortear(){
+    iniciar();
+    document.getElementById("resultado").innerHTML="";
+}
+
+iniciar();
+</script>
+</body>
+</html>
